@@ -4,15 +4,15 @@ fun main() = runBlocking {
     val gestor = GestorPedidos()
     val catalogo = gestor.catalogoInicial()
 
-    println("=== SISTEMA FOODEXPRESS ===")
+    println("=== SISTEMA FOODEXPRESS===")
     println("Catálogo disponible:")
     catalogo.forEachIndexed { i, p ->
-        val extra = when {
-            p is ProductoComida && p.premium -> " (Premium)"
-            p is ProductoBebida -> " (${p.tamano})"
+        val extra = when (p) {
+            is ProductoComida -> if (p.premium) " (Premium)" else ""
+            is ProductoBebida -> " (${p.tamano.capitalize()})"
             else -> ""
         }
-        println("${i + 1}. ${p.nombre} - $${p.precioFinal()}$extra")
+        println("${i + 1}. ${p.nombre}$extra - $${p.precioFinal()}")
     }
 
     print("\nSeleccione productos (números separados por coma): ")
@@ -29,12 +29,22 @@ fun main() = runBlocking {
 
     val resumen = gestor.calcularTotales(carrito, tipoCliente)
 
-    println("\n=== RESUMEN DEL PEDIDO ===")
-    resumen.productos.forEach { println("- ${it.nombre}: $${it.precioFinal()}") }
+    println("\n=== RESUMEN DEL PEDIDO===")
+    resumen.productos.forEach { p ->
+        val extra = when (p) {
+            is ProductoComida -> if (p.premium) " (Premium)" else ""
+            is ProductoBebida -> " (${p.tamano.capitalize()})"
+            else -> ""
+        }
+        println("- ${p.nombre}$extra: $${p.precioFinal()}")
+    }
     println("Subtotal: $${resumen.subtotal}")
-    println("Descuento ${tipoCliente.uppercase()}: -$${resumen.descuento}")
+    println("Descuento: -$${resumen.descuento}")
     println("IVA (19%): $${resumen.iva}")
     println("TOTAL: $${resumen.total}")
 
     println("\nEstado final: $estadoFinal")
+
+
+    gestor.reporteVentas()
 }
