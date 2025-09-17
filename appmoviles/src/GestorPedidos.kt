@@ -10,6 +10,8 @@ data class Calculo(
 
 class GestorPedidos(private val ivaPorc: Double = 0.19) {
 
+    private val pedidosRealizados = mutableListOf<Calculo>() // **Agregado**
+
     fun catalogoInicial(): List<Producto> = listOf(
         ProductoComida("Hamburguesa Clásica", 8990, false, 3),
         ProductoComida("Salmón Grillado", 15990, true, 5),
@@ -41,7 +43,6 @@ class GestorPedidos(private val ivaPorc: Double = 0.19) {
         }
     }
 
-    // Aquí se realizan los cálculos directamente como pide la guía
     fun calcularTotales(items: List<Producto>, tipoCliente: String): Calculo {
         val subtotal = items.sumOf { it.precioFinal() }
         val descuento = when (tipoCliente.lowercase()) {
@@ -54,6 +55,20 @@ class GestorPedidos(private val ivaPorc: Double = 0.19) {
         val iva = (base * ivaPorc).toInt()
         val total = base + iva
 
-        return Calculo(items, subtotal, descuento, iva, total)
+        val calculo = Calculo(items, subtotal, descuento, iva, total)
+        pedidosRealizados.add(calculo) // **Agregado**
+        return calculo
+    }
+
+
+    fun reporteVentas() {
+        println("\n=== REPORTE DE VENTAS ===")
+        if (pedidosRealizados.isEmpty()) {
+            println("No se han registrado ventas todavía.")
+        } else {
+            pedidosRealizados.forEachIndexed { i, c ->
+                println("Pedido ${i + 1}: Total = $${c.total}")
+            }
+        }
     }
 }
